@@ -13,6 +13,7 @@ import os
 import openpyxl
 import re
 import pypandoc
+from pypandoc.pandoc_download import download_pandoc
 from openpyxl.styles import Font, PatternFill, Alignment
 import math
 
