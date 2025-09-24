@@ -133,8 +133,67 @@ def aplicar_formatacao_final(writer):
 # ------------------------------------------------------------------------------
 
 st.set_page_config(layout="wide", page_title="Extrator de LP&RH&ST")
-st.title("📊 Gerador de Relatório de Projetos de PD&I")
-st.markdown("Esta ferramenta automatiza a criação de relatórios consolidados (LP, RH e ST) a partir da planilha de valoração e dos documentos de Linha de Pesquisa (TAs).")
+st.title("📊 Extrator de Informações da Valoração")
+import streamlit as st
+
+# Título principal
+st.markdown("## **Extração de dados de Linha de Pesquisa, Recursos Humanos e Serviços de Terceiros e Viagens**")
+
+# Descrição Geral
+st.markdown("## **Descrição Geral**")
+st.markdown("""
+Este script é uma ferramenta de automação desenvolvida com objetivo de ler e processar dados de múltiplas fontes para gerar um arquivo consolidado em Excel.
+
+A automação elimina o trabalho manual de copiar, colar, filtrar, agrupar e somar dados, garantindo consistência, rapidez e precisão na extração dos dados das abas **LP (Linha de Pesquisa)**, **RH (Recursos Humanos)** e **ST (Serviços de Terceiros)**.
+""")
+
+# Pré-requisitos
+st.markdown("## **Pré-requisitos**")
+st.markdown("""
+Para que o script funcione corretamente, você precisará de dois arquivos de entrada:
+
+1. **Planilha de Valoração (`.xlsx`):**
+    * Este é o arquivo principal que contém os dados brutos de RH e ST.
+    * Deve conter uma aba cujo nome começa com **`Timesheet_`**. Esta aba precisa ter as colunas `LINHA DE PESQUISA`, `PROJETO`, `NOME DO COLABORADOR`, `C.P.F.`, `CARGO`, `HORAS APROPRIADAS A HORAS ÚTEIS` e `LEI DO BEM` completas, principalmente a `LINHA DE PESQUISA`.
+    * Deve conter uma aba chamada **`Serviços de Terceiros e Viagens`**. Esta aba precisa ter as colunas `LINHA DE PESQUISA`, `PROJETO`, `RAZÃO SOCIAL PRESTADOR`, `CNPJ PRESTADOR`, `PORTE DA EMPRESA`, `R$ FINAL` e `DESPESA VÁLIDA PARA O PIT?`.
+
+2. **TAs (`.docx`):**
+    * São os arquivos que contêm as informações descritivas de cada Linha de Pesquisa.
+    * **Ponto Crítico:** O nome de cada arquivo deve corresponder **exatamente** ao nome utilizado na coluna `LINHA DE PESQUISA` da Planilha de Valoração.
+""")
+
+# Instruções de Uso
+st.markdown("## **Instruções de Uso**")
+st.markdown("""
+Siga este passo a passo para gerar a extração:
+
+1. **Inserir Nome da Empresa:**
+    * O primeiro campo de texto solicita o **Nome da Empresa**. Digite o nome que você deseja que apareça no arquivo final e pressione `Enter`.
+
+3. **Upload dos Arquivos:**
+    * O script solicitará os arquivos em dois quadros:
+        * **Primeiro, a Planilha de Valoração:** Clique em "Browse files" e selecione a planilha `.xlsx` de Valoração.
+        * **Depois, os TAs:** No quadro abaixo, navegue até a pasta onde estão os TAs em `.docx` e selecione **todos** os que deseja processar.
+            > **Dica:** Para selecionar múltiplos arquivos, segure a tecla `Ctrl` (no Windows) ou `Cmd` (no Mac) enquanto clica em cada arquivo.
+
+4. **Aguardar o Processamento:**
+    * Após o upload, o script começará a processar os dados automaticamente. Você verá mensagens de status na tela informando o progresso para cada Linha de Pesquisa e cada aba.
+
+5. **Download do Relatório:**
+    * Ao final do processo, uma mensagem de "Processo Concluído!" e o botão de download do seu novo arquivo Excel aparecerá. Clique nele para baixar a extração.
+    * O arquivo final terá o nome no formato: `NOME_DA_EMPRESA_LP&RH&ST.xlsx`.
+""")
+
+# O Arquivo de Saída
+st.markdown("## **O Arquivo de Saída**")
+st.markdown("""
+O relatório em Excel gerado conterá três abas:
+
+* **`LP`:** Similar ao NewPiit, uma linha para cada arquivo Word processado, contendo todos os detalhes extraídos do documento (Descrição, TRLs, Natureza, etc.).
+* **`RH`:** Um resumo de todos os colaboradores que trabalharam em cada Linha de Pesquisa, com as horas e valores somados por CPF. Os dados são pré-filtrados para remover estagiários e valores zerados.
+* **`ST`:** Um resumo de todos os prestadores de serviço para cada Linha de Pesquisa, com os valores de "R$ FINAL" somados por CNPJ. Os dados são pré-filtrados para incluir apenas despesas válidas.
+""")
+
 
 with st.sidebar:
     st.header("⚙️ Configurações")
@@ -230,7 +289,7 @@ if processar_button:
                     aplicar_formatacao_final(writer)
                 
                 st.success("🎉 Relatório gerado com sucesso!")
-                output_filename = f"{nome_empresa_safe}_LP&RH&ST_2024.xlsx"
+                output_filename = f"{nome_empresa_safe}_LP&RH&ST.xlsx"
                 st.download_button(
                     label="📥 Baixar Relatório (.xlsx)",
                     data=output_stream,
