@@ -16,6 +16,11 @@ import pypandoc
 from openpyxl.styles import Font, PatternFill, Alignment
 import math
 
+try:
+    pypandoc.get_pandoc_path()
+except OSError:
+    download_pandoc()
+
 # ------------------------------------------------------------------------------
 # 2. FUNÇÕES AUXILIARES
 # ------------------------------------------------------------------------------
