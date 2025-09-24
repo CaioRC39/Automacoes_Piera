@@ -29,7 +29,9 @@ def extract_lp_data_from_docx(doc_content_bytes):
     try:
         doc = docx.Document(io.BytesIO(doc_content_bytes))
         resultados = {}
-        resultados["Nome do Projeto (MCTI)"] = doc.tables[0].cell(1, 0).text.strip()
+
+         # --- 1. EXTRAÇÃO DIRETA DO DOCX (TEXTOS E COORDENADAS) ---
+        resultados["Nome do Projeto"] = doc.tables[0].cell(1, 0).text.strip()
         resultados["Descrição do Projeto"] = doc.tables[2].cell(0, 0).text.strip()
         resultados["Justificativa TRL"] = doc.tables[5].cell(0, 0).text.strip()
         resultados["Elemento Inovador"] = doc.tables[9].cell(0, 0).text.strip()
@@ -41,6 +43,7 @@ def extract_lp_data_from_docx(doc_content_bytes):
         resultados["Resultado de inovação"] = doc.tables[17].cell(0, 0).text.strip()
         resultados["Justificativa ODS"] = doc.tables[19].cell(0, 0).text.strip()
         resultados["Alinhamento Políticas (Justificativa)"] = doc.tables[20].cell(0, 0).text.strip()
+
         def find_value(label):
             for table in doc.tables:
                 for row in table.rows:
@@ -54,9 +57,12 @@ def extract_lp_data_from_docx(doc_content_bytes):
         resultados["Data de término"] = find_value("Data de término (dia/mês/ano):")
         palavras = [row.cells[1].text.strip() for row in doc.tables[8].rows if "Palavra-chave" in row.cells[0].text and len(row.cells) > 1 and row.cells[1].text.strip()]
         resultados["Palavras-chave"] = ", ".join(palavras)
+
+	# --- 2. EXTRAÇÃO DE TODOS OS CHECKBOXES (VIA CONVERSÃO DOCX->TXT) ---
         temp_path = 'temp_doc_for_conversion.docx'
         with open(temp_path, 'wb') as f: f.write(doc_content_bytes)
         plain_text = pypandoc.convert_file(temp_path, 'plain', format='docx', extra_args=['--wrap=none'])
+
         def get_section_text(full_text, start_keyword, end_keyword):
             try:
                 start_index = full_text.lower().find(start_keyword.lower())
@@ -156,7 +162,32 @@ if processar_button:
                         novas_linhas_lp.append(lp_data)
                 df_lp_final = pd.DataFrame(novas_linhas_lp)
                 if not df_lp_final.empty:
-                    colunas_lp = ['Linha de Pesquisa','Nome do Projeto (MCTI)','Descrição do Projeto','Classificação (PB, PA, DE)','Natureza','Área do projeto','Palavras-chave','TRL Inicial','TRL Final','Justificativa TRL']
+                    colunas_lp = [
+            'Linha de Pesquisa',
+            'Nome do Projeto',
+            'Descrição do Projeto',
+            'Classificação (PB, PA, DE)',
+            'Área do projeto',
+            'Palavras-chave',
+            'Natureza',
+            'Elemento Inovador',
+            'Barreiras/Desafios',
+            'Metodologias',
+            'Atividade Contínua',
+            'Data de início',
+            'Data de término',
+            'Atividades Ano-Base',
+            'Informações complementares',
+            'Resultado Econômico',
+            'Resultado de inovação',
+            'TRL Inicial',
+            'TRL Final',
+            'Justificativa TRL',
+            'ODS',
+            'Justificativa ODS',
+            'Alinhamento Políticas (Sim/Não)',
+            'Alinhamento Políticas (Justificativa)'
+        ]
                     df_lp_final = df_lp_final.reindex(columns=colunas_lp).fillna('')
 
                 st.info("2/3 - Processando dados de RH (Valoração)...")
