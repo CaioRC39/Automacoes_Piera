@@ -119,8 +119,72 @@ def load_sheet_with_dynamic_header(_file_content_bytes, sheet_name, keyword='LIN
 # ------------------------------------------------------------------------------
 
 st.set_page_config(layout="wide", page_title="Preenchedor Automático")
-st.title("📄 Preenchedor Automático de Planilha")
-st.markdown("Esta ferramenta preenche o NewPiit a partir da planilha de Valoração e dos TAs.")
+st.title("📄 Preenchimento Automático NewPiit")
+import streamlit as st
+
+# Título principal
+st.markdown("## **Automação para o Preenchimento do NewPiit**")
+
+# Descrição Geral
+st.markdown("## **Descrição Geral**")
+st.markdown("""
+Este script é uma ferramenta de automação com objetivo de automatizar o preenchimento do NewPiit, consolidando informações de múltiplas fontes: TAs e a planilha de Valoração.
+
+A automação executa a extração, filtragem, agrupamento, soma e preenchimento de dados em três abas distintas (`GERAL`, `DISPÊNDIOS ST` e `RH`), preservando a formatação original da planilha base. Ao final, realiza uma verificação cruzada dos totais para garantir a integridade dos dados, economizando horas de trabalho manual e reduzindo a chance de erros.
+""")
+
+# Pré-requisitos
+st.markdown("## **Pré-requisitos**")
+st.markdown("""
+Para que a automação funcione corretamente, você precisará de **três** tipos de arquivos de entrada:
+
+1. **NewPiit (`.xlsx`):**
+    * É o seu arquivo Excel modelo (template) que será preenchido.
+    * Deve conter as abas **`GERAL`**, **`DISPÊNDIOS ST`** e **`RH`** já estruturadas com os cabeçalhos corretos na linha 10.
+
+2. **Planilha de Valoração (`.xlsx`):**
+    * Contém os dados brutos de RH e Serviços de Terceiros.
+    * Deve conter uma aba cujo nome começa com **`Timesheet_`** (com as colunas `LINHA DE PESQUISA`, `PROJETO`, `C.P.F.`, `LEI DO BEM`, etc.).
+    * Deve conter uma aba chamada **`Serviços de Terceiros e Viagens`** (com as colunas `LINHA DE PESQUISA`, `CNPJ PRESTADOR`, `R$ FINAL`, `DESPESA VÁLIDA PARA O PIT?`, etc.).
+    * Deve conter uma aba cujo nome começa com **`Resumo`** para a etapa de validação final.
+
+3. **TAs (`.docx`):**
+    * Contêm as informações descritivas de cada Linha de Pesquisa.
+    * **Ponto Crítico:** O nome de cada arquivo deve corresponder **exatamente** ao nome utilizado na coluna `LINHA DE PESQUISA` da Planilha de Valoração.
+""")
+
+# Instruções de Uso
+st.markdown("## **Instruções de Uso**")
+st.markdown("""
+Siga este passo a passo para preencher sua planilha:
+
+1. **Inserir Nome da Empresa:**
+    * O primeiro campo de texto solicita o **Nome da Empresa**. Esta informação será usada no nome do arquivo final. Digite o nome e pressione `Enter`.
+
+2. **Upload dos Arquivos (em 3 quadros):**
+    * **1º - NewPiit:** O primeiro quadro de upload pedirá o NewPiit.
+    * **2º - Planilha de Valoração:** O segundo quadro pedirá a Valoração.
+    * **3º - TAs:** O terceiro Quadro pedirá os TAs em `.docx`. Selecione **todos** os que deseja processar de uma vez.
+        > **Dica:** Para selecionar múltiplos arquivos, segure a tecla `Ctrl` (no Windows) ou `Cmd` (no Mac) enquanto clica em cada arquivo.
+
+3. **Aguardar o Processamento:**
+    * A automação irá processar cada TA, um por um, preenchendo as três abas da planilha base. Você verá mensagens de status na tela para cada etapa.
+    * Ao final do processamento, ele executará a **rotina de validação**, informando se os totais calculados para RH e ST batem com os valores da aba "Resumo".
+
+4. **Download da Planilha Preenchida:**
+    * Após a validação, uma mensagem de "Processo Concluído!" e o botão de download aparecerá. Clique nele para baixar o NewPiit preenchido.
+    * O arquivo final terá o nome no formato: `NOME_DA_EMPRESA_NEWPIIT.xlsx`.
+""")
+
+# O Arquivo de Saída
+st.markdown("## **O Arquivo de Saída**")
+st.markdown("""
+O resultado é o **NewPiit preenchido** com os dados extraídos e processados. As abas preenchidas são:
+
+* **`GERAL`:** Preenchida com os detalhes extraídos dos TAs. Uma linha para cada documento processado.
+* **`DISPÊNDIOS ST`:** Preenchida com o resumo de gastos por prestador de serviço para cada Linha de Pesquisa.
+* **`RH`:** Preenchida com o resumo de horas e valores por colaborador para cada Linha de Pesquisa.
+""")
 
 with st.sidebar:
     st.header("⚙️ Configurações")
@@ -263,12 +327,12 @@ if processar_button:
                 clear_and_write('DISPÊNDIOS ST', novas_linhas_disp_st)
                 clear_and_write('RH', novas_linhas_rh)
                 
-                output_filename = f"{nome_empresa_safe}_{base_filename_cleaned}_PREENCHIDO.xlsx"
+                output_filename = f"{nome_empresa_safe}_{base_filename_cleaned}.xlsx"
                 wb.save(output_stream)
                 
                 st.success("🎉 NewPiit preenchido com sucesso!")
                 st.download_button(
-                    label="📥 Baixar NewPiit Preenchida (.xlsx)",
+                    label="📥 Baixar NewPiit Preenchido (.xlsx)",
                     data=output_stream.getvalue(),
                     file_name=output_filename,
                     mime="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
