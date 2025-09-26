@@ -16,6 +16,8 @@ import pypandoc
 from pypandoc.pandoc_download import download_pandoc
 from openpyxl.styles import Font, PatternFill, Alignment
 import math
+import google.generativeai as genai
+import json
 
 try:
     pypandoc.get_pandoc_path()
@@ -114,6 +116,31 @@ def load_sheet_with_dynamic_header(_file_content_bytes, sheet_name, keyword='LIN
         st.error(f"Erro ao carregar a aba '{sheet_name}': {e}")
         return pd.DataFrame()
 
+# ==============================================================================
+# NOVA FUNÇÃO PARA CHAMAR O GEMINI (PROCESSA EM LOTE E LIDA COM JSON)
+# ==============================================================================
+@st.cache_data
+def chamar_gemini_em_lote(prompt):
+    """
+    Configura o modelo Gemini, envia um prompt para processamento em lote
+    e espera uma resposta em formato de lista JSON.
+    """
+    try:
+        genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
+        model = genai.GenerativeModel('gemini-pro')
+        response = model.generate_content(prompt)
+        
+        # Limpa a resposta para garantir que seja um JSON válido
+        cleaned_response = response.text.strip().replace('```json', '').replace('```', '')
+        
+        # Converte a string JSON em uma lista de resultados Python
+        lista_de_resultados = json.loads(cleaned_response)
+        
+        return lista_de_resultados
+    except Exception as e:
+        st.warning(f"A chamada para a API do Gemini falhou ou a resposta não foi um JSON válido: {e}. Os campos ficarão em branco.")
+        return [] # Retorna uma lista vazia em caso de erro
+        
 # ------------------------------------------------------------------------------
 # 3. INTERFACE DO STREAMLIT
 # ------------------------------------------------------------------------------
@@ -173,7 +200,7 @@ Siga este passo a passo para preencher sua planilha:
 
 4. **Download da Planilha Preenchida:**
     * Após a validação, uma mensagem de "Processo Concluído!" e o botão de download aparecerá. Clique nele para baixar o NewPiit preenchido.
-    * O arquivo final terá o nome no formato: `NOME_DA_EMPRESA_NEWPIIT.xlsx`.
+    * O arquivo final terá o nome no formato: `NOME_EMPRESA_NEWPIIT.xlsx`.
 """)
 
 # O Arquivo de Saída
@@ -270,7 +297,9 @@ if processar_button:
                                     if any(s in texto_limpo_lower for s in ['superior completa', 'superior completo']): return 'Graduado'
                                     if any(s in texto_limpo_lower for s in ['superior incompleta', 'superior incompleto', 'médio completo']): return 'Apoio Técnico'
                                     return "Apoio Técnico"
+                                    
                                 df_f_rh['TITULAÇÃO_CONVERTIDA'] = df_f_rh['ESCOLARIDADE'].apply(categorizar_escolaridade)
+                                
                                 for cpf, grupo in df_f_rh.groupby('C.P.F.'):
                                     novas_linhas_rh.append({'#': id_rh, 'Nome da atividade de PD&I (Nome do projeto igual no GERAL)': nome_final_projeto, 'CPF': cpf,'NOME': grupo.iloc[0]['NOME DO COLABORADOR'], 'TITULAÇÃO': grupo.iloc[0]['TITULAÇÃO_CONVERTIDA'],'Total Horas (Anual)': round(grupo['HORAS APROPRIADAS A HORAS ÚTEIS'].sum(), 2),'Valor (R$)': round(grupo[lei_do_bem_col].sum(), 2)}); id_rh += 1
                     progress_bar.progress((idx + 1) / len(uploaded_words), text=f"Processando {doc_file.name}...")
@@ -341,3 +370,4 @@ if processar_button:
 
             except Exception as e:
                 st.error(f"Ocorreu um erro durante o processamento: {e}")
+
