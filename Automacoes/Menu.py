@@ -24,8 +24,9 @@ st.markdown(
 
     ### Ferramentas Disponíveis:
     - **Preenchedor de NewPiit:** Preenche o NewPiit a partir de múltiplos arquivos.
-    - **Gerador de planilha com LP, Rh e ST:** Cria uma planilha consolidada com Linhas de Pesquisa, Recursos Humanos e Serviços de Terceiros e Viagens a partir da planilha de Valoração e dos TAs.
+    - **Gerador de planilha com LP, RH e ST:** Cria uma planilha consolidada com Linhas de Pesquisa, Recursos Humanos e Serviços de Terceiros e Viagens a partir da planilha de Valoração e dos TAs.
     - **Formatador para texto de NewPiit:** Gera um texto formatado de uma aba selecionada do NewPiit, com direito a filtros.
     """
 )
+
 
