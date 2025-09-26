@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-print("Iniciando...")
-!pip install -q thefuzz python-levenshtein
 
 # PASSO 1: Importar as bibliotecas necessárias
+import streamlit as st
 import pandas as pd
-from google.colab import files
-import sys # Usada para encerrar o script de forma limpa
 from thefuzz import process
+import io # Adicionamos este import que será útil para ler o arquivo do upload
 
 
 # ==============================================================================
@@ -127,7 +125,7 @@ def processar_aba_rh(df, mapeamento, projeto_selecionado):
     # Filtra o DataFrame se um projeto específico foi escolhido no menu do Streamlit
     if projeto_selecionado != "Listar TODOS os colaboradores":
         df = df[df[coluna_projeto_real] == projeto_selecionado].copy()
-    
+
     # --- 2. PREPARAÇÃO FINAL DOS DADOS ---
     # Garante que os valores numéricos vazios sejam tratados como 0 e o resto como texto vazio
     df[mapeamento['Valor (R$)']] = df[mapeamento['Valor (R$)']].fillna(0)
@@ -142,7 +140,7 @@ def processar_aba_rh(df, mapeamento, projeto_selecionado):
     # Cria uma lista vazia para armazenar cada linha do nosso texto final
     texto_saida = []
     contador_colaborador = 1
-    
+
     # Itera sobre as linhas do DataFrame (que pode estar filtrado ou não)
     for indice, linha in df.iterrows():
         # Pula a linha se o nome do colaborador estiver em branco
@@ -200,7 +198,7 @@ def processar_aba_geral(df, mapeamento, projeto_selecionado):
     # Filtra o DataFrame se um projeto específico foi escolhido
     if projeto_selecionado != "Listar TODOS os projetos":
         df = df[df[coluna_projeto_real] == projeto_selecionado].copy()
-    
+
     # --- 2. PREPARAÇÃO FINAL DOS DADOS ---
     df = df.fillna('')
     if df.empty:
@@ -209,7 +207,7 @@ def processar_aba_geral(df, mapeamento, projeto_selecionado):
     # --- 3. GERAÇÃO DO TEXTO DE SAÍDA ---
     texto_saida = []
     contador_projeto = 1
-    
+
     for indice, linha in df.iterrows():
         projeto = str(linha[mapeamento[coluna_projeto_ideal]]).strip()
         if not projeto or projeto.lower() == 'nan':
@@ -250,7 +248,7 @@ def processar_aba_geral(df, mapeamento, projeto_selecionado):
         texto_saida.append(f"Elemento Novo: {elemento_novo}")
         texto_saida.append(f"Barreiras: {barreiras}")
         texto_saida.append(f"Metodologia: {metodologia}")
-        
+
         texto_saida.append(f"Atividade contínua?: {atividade_continua}")
         if atividade_continua.strip().lower() != 'não':
             texto_saida.append(f"Data de início: {data_inicio}")
@@ -265,14 +263,14 @@ def processar_aba_geral(df, mapeamento, projeto_selecionado):
         texto_saida.append(f"Justificativa TRL: {justificativa_trl}")
         texto_saida.append(f"ODS: {ods}")
         texto_saida.append(f"Justificativa ODS: {justificativa_ods}")
-        
+
         texto_saida.append(f"Alinha-se às políticas públicas?: {alinha_politicas}")
         if alinha_politicas.strip().lower() != 'não':
             texto_saida.append(f"Descrição alinhamento às Políticas Públicas: {desc_alinha_politicas}")
-        
+
         texto_saida.append("-" * 30)
         contador_projeto += 1
-        
+
     # --- 4. RETORNO DO RESULTADO ---
     return "\n".join(texto_saida)
 
@@ -291,7 +289,7 @@ def processar_aba_dispêndios_st(df, mapeamento, projeto_selecionado):
     # Filtra o DataFrame se um projeto específico foi escolhido
     if projeto_selecionado != "Listar TODOS os dispêndios":
         df = df[df[coluna_projeto_real] == projeto_selecionado].copy()
-    
+
     # --- 2. PREPARAÇÃO FINAL DOS DADOS ---
     df[mapeamento['Valor Total']] = df[mapeamento['Valor Total']].fillna(0)
     df = df.fillna('')
@@ -302,7 +300,7 @@ def processar_aba_dispêndios_st(df, mapeamento, projeto_selecionado):
     # --- 3. GERAÇÃO DO TEXTO DE SAÍDA ---
     texto_saida = []
     contador_dispêndio = 1
-    
+
     for indice, linha in df.iterrows():
         razao_social = str(linha[mapeamento["Prestador de Serviço"]]).strip()
         if not razao_social or razao_social.lower() == 'nan':
@@ -321,7 +319,7 @@ def processar_aba_dispêndios_st(df, mapeamento, projeto_selecionado):
 
         # Formatação do valor monetário
         valor_formatado = f"R$ {valor_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") if valor_total != 0 else ''
-        
+
         # Adiciona as linhas formatadas à lista de saída
         texto_saida.append(f"Dispêndio {contador_dispêndio}")
         texto_saida.append(f"Projeto: {projeto}")
@@ -337,7 +335,7 @@ def processar_aba_dispêndios_st(df, mapeamento, projeto_selecionado):
         texto_saida.append("-" * 30)
 
         contador_dispêndio += 1
-        
+
     # --- 4. RETORNO DO RESULTADO ---
     return "\n".join(texto_saida)
 
@@ -356,7 +354,7 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
     # Filtra o DataFrame se um projeto específico foi escolhido
     if projeto_selecionado != "Listar TODOS os dispêndios de materiais":
         df = df[df[coluna_projeto_real] == projeto_selecionado].copy()
-    
+
     # --- 2. PREPARAÇÃO FINAL DOS DADOS ---
     df[mapeamento['Valor Total']] = df[mapeamento['Valor Total']].fillna(0)
     df = df.fillna('')
@@ -367,7 +365,7 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
     # --- 3. GERAÇÃO DO TEXTO DE SAÍDA ---
     texto_saida = []
     contador_dispêndio = 1
-    
+
     for indice, linha in df.iterrows():
         material = str(linha[mapeamento["Identificação do Material"]]).strip()
         if not material or material.lower() == 'nan':
@@ -380,7 +378,7 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
 
         # Formatação do valor monetário
         valor_formatado = f"R$ {valor_total:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".") if valor_total != 0 else ''
-        
+
         # Adiciona as linhas formatadas à lista de saída
         texto_saida.append(f"Dispêndio MC {contador_dispêndio}")
         texto_saida.append(f"Projeto: {projeto}")
@@ -390,7 +388,7 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
         texto_saida.append("-" * 30)
 
         contador_dispêndio += 1
-        
+
     # --- 4. RETORNO DO RESULTADO ---
     return "\n".join(texto_saida)
 
@@ -400,6 +398,39 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
 
 st.set_page_config(page_title="Formatador de Relatórios", layout="wide")
 st.title("📄 Formatador de Planilhas para Relatórios")
+
+texto_instrucoes = """
+### ✨ Bem-vindo ao Formatador Inteligente de Relatórios!
+
+Esta ferramenta foi projetada para simplificar sua vida! Ela automatiza a tediosa tarefa de copiar e colar informações de planilhas Excel, transformando os dados brutos em textos formatados e prontos para serem usados em seus relatórios.
+
+Além disso, o sistema é inteligente e consegue encontrar as colunas corretas mesmo que os nomes no seu arquivo não sejam exatamente idênticos aos esperados, tornando o processo mais flexível e à prova de erros.
+
+---
+
+### 🚀 Como Começar (Passo a Passo)
+
+**1. Carregue sua Planilha**
+   - Arraste e solte o seu arquivo Excel na área indicada ou clique no botão **"Browse files"** para procurá-lo no seu computador.
+   - O aplicativo aceita apenas arquivos no formato `.xlsx`.
+
+**2. Selecione a Aba**
+   - No primeiro menu suspenso que aparecer, escolha qual aba da planilha você deseja processar (ex: "Recursos Humanos (RH)", "Informações dos projetos (GERAL)", etc.).
+
+**3. Filtre por Projeto (Opcional)**
+   - Se a aba selecionada contiver informações de múltiplos projetos, um segundo menu aparecerá.
+   - Você pode escolher um projeto específico para ver apenas os dados relacionados a ele, ou selecionar a primeira opção (**"Listar TODOS..."**) para processar os dados de todos os projetos daquela aba.
+
+**4. Gere o Texto Formatado**
+   - Após fazer suas seleções, clique no botão azul principal (ex: **"✨ Gerar Texto da Aba 'RH'"**).
+   - Aguarde alguns instantes enquanto a mágica acontece!
+
+**5. Copie o Resultado**
+   - O texto final, perfeitamente formatado, aparecerá em uma grande caixa de texto na parte inferior da página.
+   - Basta clicar dentro da caixa, copiar todo o conteúdo (`Ctrl+C` ou `Cmd+C`) e colar onde você precisar!
+"""
+
+st.markdown(texto_instrucoes)
 
 st.info("**Instruções:**\n1. Faça o upload da sua planilha Excel.\n2. Selecione a aba que deseja processar.\n3. Se aplicável, filtre por um projeto específico.\n4. Clique no botão para gerar o texto formatado.")
 
@@ -475,17 +506,17 @@ uploaded_file = st.file_uploader("1. Faça o upload da sua planilha Excel (.xlsx
 
 if uploaded_file is not None:
     st.success(f"Arquivo '{uploaded_file.name}' carregado com sucesso!")
-    
+
     opcoes_abas = list(CONFIG_ABAS.keys())
     aba_selecionada_nome = st.selectbox("2. Selecione a aba que deseja processar:", options=opcoes_abas, index=None, placeholder="Escolha uma opção...")
-    
+
     if aba_selecionada_nome:
         config = CONFIG_ABAS[aba_selecionada_nome]
-        
+
         try:
             df = pd.read_excel(uploaded_file, sheet_name=config["sheet_name"], skiprows=config["skiprows"])
             mapeamento, nao_encontradas = mapear_colunas_inteligentemente(df.columns, config["colunas_esperadas"])
-            
+
             if nao_encontradas:
                 st.error(f"**Colunas não encontradas!**\n\nAs seguintes colunas essenciais não foram encontradas na aba '{config['sheet_name']}':\n- {'\n- '.join(nao_encontradas)}\n\nPor favor, verifique sua planilha e tente novamente.")
             else:
@@ -512,7 +543,7 @@ if uploaded_file is not None:
                     with st.spinner("Processando... Por favor, aguarde."):
                         funcao = config["funcao_processamento"]
                         resultado_texto = funcao(df, mapeamento, projeto_selecionado)
-                        
+
                         st.subheader("Resultado Formatado:")
                         st.text_area("Copie o texto abaixo:", value=resultado_texto, height=500, key=f"resultado_{aba_selecionada_nome}")
                         st.success("Processamento concluído com sucesso!")
