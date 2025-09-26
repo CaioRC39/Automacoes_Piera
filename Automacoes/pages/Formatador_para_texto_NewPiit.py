@@ -425,7 +425,7 @@ Esta ferramenta foi projetada para simplificar sua vida! Ela automatiza a tedios
 
 **5. Copie o Resultado**
    - O texto final, perfeitamente formatado, aparecerá em uma grande caixa de texto na parte inferior da página.
-   - Basta clicar no botão de copiar no cabeçalho da caixa e colar onde você precisar!
+   - Basta clicar no botão de copiar no canto superior direito da caixa e colar onde você precisar!
    - Ou você pode também copiar todo o conteúdo com `Ctrl+C` no Windows ou `Cmd+C` Mac e colar onde você precisar!
 """
 
