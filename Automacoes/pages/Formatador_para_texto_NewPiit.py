@@ -4,7 +4,7 @@
 import streamlit as st
 import pandas as pd
 from thefuzz import process
-import io # Adicionamos este import que será útil para ler o arquivo do upload
+import io
 
 
 # ==============================================================================
@@ -295,7 +295,7 @@ def processar_aba_dispêndios_st(df, mapeamento, projeto_selecionado):
     df = df.fillna('')
 
     if df.empty:
-        return "Nenhum dispêndio encontrado para a seleção feita."
+        return "Nenhum dispêndio de Serviço de Terceiro e Viagens encontrado para a seleção feita."
 
     # --- 3. GERAÇÃO DO TEXTO DE SAÍDA ---
     texto_saida = []
@@ -360,7 +360,7 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
     df = df.fillna('')
 
     if df.empty:
-        return "Nenhum dispêndio de material encontrado para a seleção feita."
+        return "Nenhum dispêndio de Material de Cosumo encontrado para a seleção feita."
 
     # --- 3. GERAÇÃO DO TEXTO DE SAÍDA ---
     texto_saida = []
@@ -397,49 +397,48 @@ def processar_aba_dispêndios_mc(df, mapeamento, projeto_selecionado):
 # ==============================================================================
 
 st.set_page_config(page_title="Formatador de Relatórios", layout="wide")
-st.title("📄 Formatador de Planilhas para Relatórios")
+st.title("📄 Formatador para texto de NewPiit")
 
 texto_instrucoes = """
-### ✨ Bem-vindo ao Formatador Inteligente de Relatórios!
+### ✨ Bem-vindo ao Formatador para texto de NewPiit!
 
-Esta ferramenta foi projetada para simplificar sua vida! Ela automatiza a tediosa tarefa de copiar e colar informações de planilhas Excel, transformando os dados brutos em textos formatados e prontos para serem usados em seus relatórios.
-
-Além disso, o sistema é inteligente e consegue encontrar as colunas corretas mesmo que os nomes no seu arquivo não sejam exatamente idênticos aos esperados, tornando o processo mais flexível e à prova de erros.
+Esta ferramenta foi projetada para simplificar sua vida! Ela automatiza a tediosa tarefa de copiar e colar informações do NewPiit, transformando os dados brutos em textos formatados e prontos para serem usados.
 
 ---
 
 ### 🚀 Como Começar (Passo a Passo)
 
-**1. Carregue sua Planilha**
-   - Arraste e solte o seu arquivo Excel na área indicada ou clique no botão **"Browse files"** para procurá-lo no seu computador.
+**1. Carregue o NewPiit**
+   - Arraste e solte o NewPiit na área indicada ou clique no botão **"Browse files"** para procurá-lo no seu computador.
    - O aplicativo aceita apenas arquivos no formato `.xlsx`.
 
 **2. Selecione a Aba**
-   - No primeiro menu suspenso que aparecer, escolha qual aba da planilha você deseja processar (ex: "Recursos Humanos (RH)", "Informações dos projetos (GERAL)", etc.).
+   - No primeiro menu suspenso que aparecer, escolha qual aba do NewPiit você deseja processar (ex: "Recursos Humanos (aba RH)", "Informações dos projetos (aba GERAL)", etc.).
 
 **3. Filtre por Projeto (Opcional)**
    - Se a aba selecionada contiver informações de múltiplos projetos, um segundo menu aparecerá.
    - Você pode escolher um projeto específico para ver apenas os dados relacionados a ele, ou selecionar a primeira opção (**"Listar TODOS..."**) para processar os dados de todos os projetos daquela aba.
 
 **4. Gere o Texto Formatado**
-   - Após fazer suas seleções, clique no botão azul principal (ex: **"✨ Gerar Texto da Aba 'RH'"**).
+   - Após fazer suas seleções, clique no botão azul principal (ex: **"✨ Gerar Texto da Aba '[Nome da aba selecionada]'"**).
    - Aguarde alguns instantes enquanto a mágica acontece!
 
 **5. Copie o Resultado**
    - O texto final, perfeitamente formatado, aparecerá em uma grande caixa de texto na parte inferior da página.
-   - Basta clicar dentro da caixa, copiar todo o conteúdo (`Ctrl+C` ou `Cmd+C`) e colar onde você precisar!
+   - Basta clicar no botão de copiar no cabeçalho da caixa e colar onde você precisar!
+   - Ou você pode também copiar todo o conteúdo com `Ctrl+C` no Windows ou `Cmd+C` Mac e colar onde você precisar!
 """
 
 st.markdown(texto_instrucoes)
 
-st.info("**Instruções:**\n1. Faça o upload da sua planilha Excel.\n2. Selecione a aba que deseja processar.\n3. Se aplicável, filtre por um projeto específico.\n4. Clique no botão para gerar o texto formatado.")
+st.info("**Instruções:**\n1. Faça o upload do NewPiit.\n2. Selecione a aba que deseja processar.\n3. Se aplicável, filtre por um projeto específico.\n4. Clique no botão para gerar o texto formatado.")
 
 # --- PAINEL DE CONTROLE CENTRAL ---
 # Este dicionário é o cérebro do app. Ele diz ao Streamlit tudo o que ele precisa
 # saber sobre cada aba: qual o nome da planilha, quais colunas esperar, qual
 # função de processamento chamar, etc.
 CONFIG_ABAS = {
-    "Informações dos projetos (GERAL)": {
+    "Informações dos projetos (Aba GERAL)": {
         "sheet_name": "GERAL",
         "skiprows": 9,
         "funcao_processamento": processar_aba_geral,
@@ -460,7 +459,7 @@ CONFIG_ABAS = {
             "Alinhamento do Projeto com Políticas, Programas e Estratégias Governamentais"
         ]
     },
-    "Serviços de Terceiros e Viagens (DISPÊNDIOS ST)": {
+    "Serviços de Terceiros e Viagens (Aba DISPÊNDIOS ST)": {
         "sheet_name": "DISPÊNDIOS ST",
         "skiprows": 9,
         "funcao_processamento": processar_aba_dispêndios_st,
@@ -475,7 +474,7 @@ CONFIG_ABAS = {
             'Código do projeto Embrapii (caso seja credenciada Embrapii)'
         ]
     },
-    "Dispêndios com Material de Consumo (DISPÊNDIOS MC)": {
+    "Dispêndios com Material de Consumo (Aba DISPÊNDIOS MC)": {
         "sheet_name": "DISPÊNDIOS MC",
         "skiprows": 9,
         "funcao_processamento": processar_aba_dispêndios_mc,
@@ -486,7 +485,7 @@ CONFIG_ABAS = {
             'Nome da atividade de PD&I (Nome do projeto igual no GERAL)', 'Identificação do Material', 'Descrição', 'Valor Total'
         ]
     },
-    "Informações dos colaboradores (RH)": {
+    "Informações dos colaboradores (Aba RH)": {
         "sheet_name": "RH",
         "skiprows": 9,
         "funcao_processamento": processar_aba_rh,
@@ -502,7 +501,7 @@ CONFIG_ABAS = {
 }
 
 # --- LÓGICA DA INTERFACE ---
-uploaded_file = st.file_uploader("1. Faça o upload da sua planilha Excel (.xlsx)", type="xlsx")
+uploaded_file = st.file_uploader("1. Faça o upload do NewPiit (.xlsx)", type="xlsx")
 
 if uploaded_file is not None:
     st.success(f"Arquivo '{uploaded_file.name}' carregado com sucesso!")
@@ -540,16 +539,18 @@ if uploaded_file is not None:
 
                 # Botão para iniciar o processamento
                 if st.button(f"✨ Gerar Texto da Aba '{aba_selecionada_nome}'", type="primary"):
-                    with st.spinner("Processando... Por favor, aguarde."):
-                        funcao = config["funcao_processamento"]
-                        resultado_texto = funcao(df, mapeamento, projeto_selecionado)
+                with st.spinner("Processando... Por favor, aguarde."):
+                    funcao = config["funcao_processamento"]
+                    resultado_texto = funcao(df, mapeamento, projeto_selecionado)
+                    
+                    st.subheader("Resultado Formatado:")
 
-                        st.subheader("Resultado Formatado:")
-                        st.text_area("Copie o texto abaixo:", value=resultado_texto, height=500, key=f"resultado_{aba_selecionada_nome}")
-                        st.success("Processamento concluído com sucesso!")
+                    st.code(resultado_texto, language=None, line_numbers=True)
+                    
+                    st.success("Processamento concluído com sucesso!")
 
         except Exception as e:
-            st.error(f"**Ocorreu um erro ao processar a planilha!**\n\nVerifique se a aba '{config['sheet_name']}' existe no seu arquivo e se o formato está correto.\n\nDetalhe do erro: {e}")
+            st.error(f"**Ocorreu um erro ao processar o NewPiit!**\n\nVerifique se a aba '{config['sheet_name']}' existe no seu arquivo e se o formato está correto.\n\nDetalhe do erro: {e}")
 
 else:
-    st.warning("Aguardando o upload de um arquivo Excel...")
+    st.warning("Aguardando o upload do NewPiit...")
