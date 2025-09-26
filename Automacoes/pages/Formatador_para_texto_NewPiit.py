@@ -408,8 +408,8 @@ Esta ferramenta foi projetada para simplificar sua vida! Ela automatiza a tedios
 
 ### 🚀 Como Começar (Passo a Passo)
 
-**1. Carregue o NewPiit**
-   - Arraste e solte o NewPiit na área indicada ou clique no botão **"Browse files"** para procurá-lo no seu computador.
+**1. Carregue o NewPiit _preenchido_**
+   - Arraste e solte o NewPiit _já preenchido_ na área indicada ou clique no botão **"Browse files"** para procurá-lo no seu computador.
    - O aplicativo aceita apenas arquivos no formato `.xlsx`.
 
 **2. Selecione a Aba**
