@@ -539,15 +539,15 @@ if uploaded_file is not None:
 
                 # Botão para iniciar o processamento
                 if st.button(f"✨ Gerar Texto da Aba '{aba_selecionada_nome}'", type="primary"):
-                with st.spinner("Processando... Por favor, aguarde."):
-                    funcao = config["funcao_processamento"]
-                    resultado_texto = funcao(df, mapeamento, projeto_selecionado)
+                    with st.spinner("Processando... Por favor, aguarde."):
+                        funcao = config["funcao_processamento"]
+                        resultado_texto = funcao(df, mapeamento, projeto_selecionado)
                     
-                    st.subheader("Resultado Formatado:")
+                        st.subheader("Resultado Formatado:")
 
-                    st.code(resultado_texto, language=None, line_numbers=True)
+                        st.code(resultado_texto, language=None, line_numbers=True)
                     
-                    st.success("Processamento concluído com sucesso!")
+                        st.success("Processamento concluído com sucesso!")
 
         except Exception as e:
             st.error(f"**Ocorreu um erro ao processar o NewPiit!**\n\nVerifique se a aba '{config['sheet_name']}' existe no seu arquivo e se o formato está correto.\n\nDetalhe do erro: {e}")
